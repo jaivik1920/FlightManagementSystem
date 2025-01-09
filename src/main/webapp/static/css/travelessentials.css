@@ -1,0 +1,44 @@
+.section-header {
+	font-size: 32px;
+	font-weight: bold;
+	color: #0066CC;
+	margin-bottom: 30px;
+}
+
+.section-subheader {
+	font-size: 24px;
+	color: #0056b3;
+	margin-top: 20px;
+	margin-bottom: 15px;
+}
+
+.section-content {
+	font-size: 16px;
+	color: #333;
+	line-height: 1.6;
+}
+
+.card {
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	margin-bottom: 30px;
+}
+
+.card-header {
+	background-color: #0066CC;
+	color: white;
+	font-weight: bold;
+}
+
+.card-body {
+	background-color: #f9f9f9;
+}
+
+.btn-custom {
+	background-color: #0066CC;
+	color: white;
+	font-weight: bold;
+}
+
+.btn-custom:hover {
+	background-color: #004B8D;
+}

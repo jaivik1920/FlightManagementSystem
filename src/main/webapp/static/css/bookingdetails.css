@@ -1,0 +1,38 @@
+body {
+	background-color: #f8f9fa;
+}
+
+.booking-container {
+	max-width: 800px;
+	margin: auto;
+}
+
+.header-section {
+	text-align: center;
+	padding: 20px;
+	background-color: #007bff;
+	color: white;
+	border-radius: 8px 8px 0 0;
+}
+
+.card {
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-label {
+	font-weight: bold;
+}
+
+.btn-primary {
+	width: 100%;
+}
+
+.form-section {
+	padding: 20px;
+}
+
+.summary-section {
+	background-color: #f1f1f1;
+	padding: 15px;
+	border-radius: 8px;
+}

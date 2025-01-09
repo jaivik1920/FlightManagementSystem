@@ -120,16 +120,15 @@ public class Flight {
 	}
 	
 	public int getDuration() {
-	    // Assuming departureTime and arrivalTime are stored as String in a "HH:mm:ss" format
-	    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+	    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	    try {
-	        java.util.Date depTime = format.parse(this.departureTime);
-	        java.util.Date arrTime = format.parse(this.arrivalTime);
-	        long diff = arrTime.getTime() - depTime.getTime();
-	        return (int) (diff / (1000 * 60)); // Duration in minutes
+	    	java.util.Date depDateTime = format.parse(this.departureDate + " " + this.departureTime);
+	        java.util.Date arrDateTime = format.parse(this.arrivalDate + " " + this.arrivalTime);
+	        long diff = arrDateTime.getTime() - depDateTime.getTime();
+	        return (int) (diff / (1000 * 60));
 	    } catch (ParseException e) {
 	        e.printStackTrace();
-	        return 0; // Default in case of error
+	        return 0; 
 	    }
 	}
 

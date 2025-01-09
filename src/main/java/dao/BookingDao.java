@@ -9,6 +9,7 @@ import java.util.List;
 
 import config.ConnectionProvider;
 import models.Booking;
+import models.UserBooking;
 
 public class BookingDao {
 	
@@ -66,21 +67,59 @@ public class BookingDao {
 		
 	}
 	
-	public List<Booking> getAllBookingsByUser(int userId)
+	public List<UserBooking> getAllBookingsByUser(int userId)
 	{
-		List<Booking> bookings = new ArrayList<Booking>();
+		List<UserBooking> bookings = new ArrayList<UserBooking>();
 		
-		String query = "SELECT * from bookings where user_id = ? order by booking_date desc";
+		 String getBookingsQuery = 
+			    "SELECT " +
+			    "    b.booking_id, " +
+			    "    b.full_name, " +
+			    "    f.flight_number, " +
+			    "    f.from_location, " +
+			    "    f.to_location, " +
+			    "    f.departure_date, " +
+			    "    f.departure_time, " +
+			    "    f.arrival_date, " +
+			    "    f.arrival_time, " +
+			    "    b.travel_class, " +
+			    "    CASE " +
+			    "        WHEN b.travel_class = 'EC' THEN f.economy_price " +
+			    "        WHEN b.travel_class = 'BC' THEN f.business_price " +
+			    "        WHEN b.travel_class = 'FC' THEN f.firstclass_price " +
+			    "        ELSE 0 " +
+			    "    END AS price, " +
+			    "    b.booking_date, " +
+			    "    f.status " +
+			    "FROM " +
+			    "    bookings b " +
+			    "JOIN " +
+			    "    flights f ON b.flight_id = f.id " +
+			    "WHERE " +
+			    "    b.user_id = ?"; 
+
+		
 		try {
-			PreparedStatement preparedStatement = connection.prepareStatement(query);
+			PreparedStatement preparedStatement = connection.prepareStatement(getBookingsQuery);
 			preparedStatement.setInt(1, userId);
 			
 			ResultSet resultSet = preparedStatement.executeQuery();
 			while(resultSet.next())
 			{
-				Booking booking = new Booking(userId, resultSet.getInt("flight_id"), resultSet.getString("full_name"), resultSet.getInt("age"), 
-						resultSet.getString("passport_number"), resultSet.getString("contact_details"),resultSet.getString("travel_class"));
-				booking.setBookingDate(resultSet.getTimestamp("booking_date"));
+				UserBooking booking = new UserBooking();
+				booking.setBookingId(resultSet.getInt("booking_id"));
+                booking.setFullName(resultSet.getString("full_name"));
+                booking.setFlightNumber(resultSet.getString("flight_number"));
+                booking.setFromLocation(resultSet.getString("from_location"));
+                booking.setToLocation(resultSet.getString("to_location"));
+                booking.setDepartureDate(resultSet.getDate("departure_date"));
+                booking.setDepartureTime(resultSet.getString("departure_time"));
+                booking.setArrivalDate(resultSet.getDate("arrival_date"));
+                booking.setArrivalTime(resultSet.getString("arrival_time"));
+                booking.setTravelClass(resultSet.getString("travel_class"));
+                booking.setPrice(resultSet.getDouble("price"));
+                booking.setBookingDate(resultSet.getDate("booking_date"));
+                booking.setStatus(resultSet.getString("status"));
 				
 				bookings.add(booking);
 			}
@@ -90,6 +129,66 @@ public class BookingDao {
 		}
 		
 		return bookings;
+	}
+	
+	public boolean cancleBooking(int bookingId)
+	{
+		String query= "select flight_id,travel_class from bookings where booking_id = ?";
+		String deleteQuery = "delete from bookings where booking_id = ?";
+
+		PreparedStatement preparedStatement;
+		try {
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setInt(1, bookingId);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			String travelClass = "";
+			int flightid = -1;
+			while(resultSet.next())
+			{
+				travelClass = resultSet.getString("travel_class");
+				flightid = resultSet.getInt("flight_id");
+				
+			}
+			resultSet.close();
+			
+			preparedStatement = connection.prepareStatement(deleteQuery);
+			preparedStatement.setInt(1, bookingId);
+			
+			int result = preparedStatement.executeUpdate();
+			
+			if(result > 0)
+			{
+				String parameter = "";
+				if(travelClass.equals("BC"))
+				{
+					parameter = "business_seats_available";
+				}
+				else if(travelClass.equals("EC"))
+				{
+					parameter = "economy_seats_available";
+				}
+				else {
+					parameter = "first_seats_available";
+				}
+				String updateSeatCountQuery = "UPDATE flights SET " + parameter + " = " + parameter + " + 1 WHERE id = ?";
+				
+				preparedStatement = connection.prepareStatement(updateSeatCountQuery);
+				preparedStatement.setInt(1, flightid);
+				
+				result = 0;
+				result = preparedStatement.executeUpdate();
+				if(result > 0)
+				{
+					return true;	
+				}
+				
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+		
 	}
 	
 }

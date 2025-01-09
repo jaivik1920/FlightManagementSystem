@@ -41,51 +41,66 @@ public class BookingServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		 HttpSession session = request.getSession(false);
-    	 if (session == null || session.getAttribute("user") == null) {
-		        session = request.getSession(); 
-		        session.setAttribute("tempBookingDetails", request.getParameterMap()); 
-		        response.sendRedirect("views/signin.jsp");
-		        return;
-    	 }
-    	 
-    	 User user = (User)session.getAttribute("user");
-    	 Map<String, String[]> tempBookingDetails = (Map<String, String[]>) request.getAttribute("tempBookingDetails");
- 	    if(tempBookingDetails != null)
- 	    {
-
- 		    int flightId = Integer.parseInt(tempBookingDetails.get("flightId")[0]);
- 		    String fullName = tempBookingDetails.get("fullName")[0];
- 		    int age = Integer.parseInt(tempBookingDetails.get("age")[0]);
- 		    String passportNumber = tempBookingDetails.get("passportNumber")[0];
- 		    String contactDetails = tempBookingDetails.get("contactDetails")[0];
- 		    String travelClass = tempBookingDetails.get("travelClass")[0];
- 	
- 		    //Perform booking
- 		    Booking booking = new Booking(user.getUserID(), flightId, fullName, age, passportNumber, contactDetails, travelClass);
- 		    BookingDao bookingDao = new BookingDao();
- 	
- 		    if (bookingDao.insertBooking(booking)) {
- 		        response.sendRedirect("UserHomePage");
- 		        return;
- 		    }
- 	    }
-    	 
-		int flightId = Integer.parseInt(request.getParameter("flightId"));
-        String fullName = request.getParameter("fullName");
-        int age = Integer.parseInt(request.getParameter("age"));
-        String passportNumber = request.getParameter("passportNumber");
-        String contactDetails = request.getParameter("contactDetails");
-        String travelClass = request.getParameter("travelClass");
-        
-        Booking booking = new Booking(user.getUserID(), flightId, fullName, age, passportNumber, contactDetails,travelClass);
-        
-        BookingDao bookingDao = new BookingDao();
-        if(bookingDao.insertBooking(booking))
-        {
-        	response.sendRedirect("UserHomePage");
-        	return;
-        }
+		
+		if((request.getParameter("action") != null && request.getParameter("action").equals("bookflight")) ||
+				(request.getAttribute("action") != null && request.getAttribute("action").equals("bookflight")))
+		{
+			 HttpSession session = request.getSession(false);
+	    	 if (session == null || session.getAttribute("user") == null) {
+			        session = request.getSession(); 
+			        session.setAttribute("tempBookingDetails", request.getParameterMap()); 
+			        response.sendRedirect("views/signin.jsp");
+			        return;
+	    	 }
+	    	 
+	    	 User user = (User)session.getAttribute("user");
+	    	 Map<String, String[]> tempBookingDetails = (Map<String, String[]>) request.getAttribute("tempBookingDetails");
+	 	    if(tempBookingDetails != null)
+	 	    {
+	
+	 		    int flightId = Integer.parseInt(tempBookingDetails.get("flightId")[0]);
+	 		    String fullName = tempBookingDetails.get("fullName")[0];
+	 		    int age = Integer.parseInt(tempBookingDetails.get("age")[0]);
+	 		    String passportNumber = tempBookingDetails.get("passportNumber")[0];
+	 		    String contactDetails = tempBookingDetails.get("contactDetails")[0];
+	 		    String travelClass = tempBookingDetails.get("travelClass")[0];
+	 	
+	 		    //Perform booking
+	 		    Booking booking = new Booking(user.getUserID(), flightId, fullName, age, passportNumber, contactDetails, travelClass);
+	 		    BookingDao bookingDao = new BookingDao();
+	 	
+	 		    if (bookingDao.insertBooking(booking)) {
+	 		        response.sendRedirect("UserHomePage");
+	 		        return;
+	 		    }
+	 	    }
+	    	 
+			int flightId = Integer.parseInt(request.getParameter("flightId"));
+	        String fullName = request.getParameter("fullName");
+	        int age = Integer.parseInt(request.getParameter("age"));
+	        String passportNumber = request.getParameter("passportNumber");
+	        String contactDetails = request.getParameter("contactDetails");
+	        String travelClass = request.getParameter("travelClass");
+	        
+	        Booking booking = new Booking(user.getUserID(), flightId, fullName, age, passportNumber, contactDetails,travelClass);
+	        
+	        BookingDao bookingDao = new BookingDao();
+	        if(bookingDao.insertBooking(booking))
+	        {
+	        	response.sendRedirect("UserHomePage");
+	        	return;
+	        }
+		}
+		else if(request.getParameter("action").equals("cancelbooking"))
+		{
+			BookingDao bookingDao = new BookingDao();
+			int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+			if(bookingDao.cancleBooking(bookingId))
+			{
+				response.sendRedirect("UserHomePage");
+			}
+			
+		}
 		doGet(request, response);
 	}
 

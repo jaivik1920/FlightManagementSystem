@@ -1,0 +1,55 @@
+.header-section {
+	background-color: #0066CC;
+	color: white;
+	padding: 50px 0;
+	text-align: center;
+}
+
+.header-section h1 {
+	font-size: 48px;
+	font-weight: bold;
+}
+
+.contact-card {
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	margin-bottom: 30px;
+	padding: 20px;
+	background-color: #f8f9fa;
+}
+
+.contact-card h5 {
+	color: #0066CC;
+}
+
+.contact-card p {
+	font-size: 16px;
+	color: #333;
+}
+
+.faq-section {
+	background-color: #f1f1f1;
+	padding: 50px 0;
+}
+
+.faq-card {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	margin-bottom: 30px;
+	padding: 25px;
+	background-color: white;
+}
+
+.social-icons {
+	margin: 10px;
+}
+
+.social-icons a {
+	margin: 10px;
+	font-size: 50px;
+	color: #0066CC;
+	text-decoration: none
+}
+
+.social-icons a:hover {
+	color: #004B8D;
+}

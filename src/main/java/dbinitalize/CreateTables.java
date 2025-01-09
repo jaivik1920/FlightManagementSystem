@@ -14,7 +14,7 @@ public class CreateTables {
             "emailid VARCHAR(255) NOT NULL UNIQUE,"  + 
             "password VARCHAR(255) NOT NULL,"  +
             "nationality_code CHAR(2) NOT NULL,"  +      
-            "mobile_number VARCHAR(15) NOT NULL UNIQUE,"  + 
+            "mobile_number VARCHAR(15) NOT NULL ,"  + 
             "date_of_birth DATE NOT NULL," +
             "date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP" + 
             ");";
@@ -22,7 +22,7 @@ public class CreateTables {
 	
 	private static final String createFlightsTableQuery = "CREATE TABLE IF NOT EXISTS flights (" +
             "id INT AUTO_INCREMENT PRIMARY KEY," +                    
-            "flight_number VARCHAR(7) NOT NULL," +                    
+            "flight_number VARCHAR(10) NOT NULL," +                    
             "from_location VARCHAR(100) NOT NULL," +                    
             "to_location VARCHAR(100) NOT NULL," +                      
             "departure_date DATE NOT NULL," +                            
