@@ -1,9 +1,7 @@
 package servlets;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +15,8 @@ import javax.servlet.http.HttpSession;
 
 import models.Flight;
 import models.User;
-import service.LoginLogoutService;
+import service.FlightService;
+import service.UserService;
 
 /**
  * Servlet implementation class CreateUser
@@ -38,12 +37,16 @@ public class RootServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String action = request.getParameter("action");
+		String action = request.getParameter("action") != null ? request.getParameter("action") : "";
 		if(action.equals("flightsearch"))
 		{
 	        String sortOption = request.getParameter("sortOption");
 
-			List<Flight> flights= LoginLogoutService.getAllFlights(request);
+			List<Flight> flights= FlightService.getAllFlights(request);
+			for(Flight flight: flights)
+			{
+					flight.getDuration();
+			}
 			 switch (sortOption) {
 	        case "cheapest":
 	            flights.sort(Comparator.comparingDouble(Flight::getEconomyPrice));
@@ -72,10 +75,12 @@ public class RootServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String action = request.getParameter("action");
+		String action = request.getParameter("action") != null ? request.getParameter("action") : "";
+		
 		if(action.equals("flightsearch"))
 		{
-			List<Flight> flights= LoginLogoutService.getAllFlights(request);
+			List<Flight> flights= FlightService.getAllFlights(request);
+			flights.sort(Comparator.comparingDouble(Flight::getEconomyPrice));
 			request.setAttribute("flights", flights);
 			RequestDispatcher rd = request.getRequestDispatcher("views/flightslist.jsp");
 			rd.forward(request, response);
@@ -83,25 +88,36 @@ public class RootServlet extends HttpServlet {
 		}
 		else if(action.equals("signup"))
 		{
-			LoginLogoutService.signup(request);
+			if(UserService.signup(request))
+			{
+				request.setAttribute("msg", "Account Created Successfully!!");
+				RequestDispatcher rDispatcher = request.getRequestDispatcher("views/signin.jsp");
+				rDispatcher.forward(request, response);
+			}
+			else {
+				request.setAttribute("error","User already exists!! Please login with the existing email id!!");
+				RequestDispatcher rDispatcher = request.getRequestDispatcher("views/signup.jsp");
+				rDispatcher.forward(request, response);
+			}
 		}
 		else if(action.equals("signin"))
 		{
 			try {
-				User user = LoginLogoutService.signin(request);
+				User user = UserService.signin(request);
 				if(user != null)
 				{
 					HttpSession session = request.getSession(false);
 					session.setAttribute("user", user);
-					Map<String, String[]> tempBookingDetails = (Map) session.getAttribute("tempBookingDetails");
+					Map<String, String[]> tempBookingDetails = (Map)session.getAttribute("tempBookingDetails");
 		            if (tempBookingDetails != null) 
 		            {
 		                    session.removeAttribute("tempBookingDetails"); // Clean up session
 		                    request.setAttribute("tempBookingDetails", tempBookingDetails);
+		                    request.setAttribute("action", "bookflight");
 		                    request.getRequestDispatcher("BookingServlet").forward(request, response);
 		                    return;
 		            }
-					response.sendRedirect("UserHomePage");
+					response.sendRedirect("views/myprofile.jsp");
 				}
 				else {
 				    throw new Exception("Invalid Username or Password!!");	
@@ -109,11 +125,9 @@ public class RootServlet extends HttpServlet {
 			} catch (Exception e) {
 				e.printStackTrace();
 				String error = e.getMessage();
-				response.setContentType("text/html");  
-				PrintWriter printWriter = response.getWriter();
-				printWriter.write(error);
+				request.setAttribute("error",error);
 				RequestDispatcher rDispatcher = request.getRequestDispatcher("views/signin.jsp");
-				rDispatcher.include(request, response);
+				rDispatcher.forward(request, response);
 			    
 			}
 		}
